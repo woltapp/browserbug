@@ -18,9 +18,10 @@ larger bundle sizes, and makes the codebase less inviting.
 
 ### The core solution
 
-To tackle this problem, these lint rules offer a way to **annotate such forked
-codepaths and their associated browser versions versions via code comments**.
-The lint rules will then alert you when those browser versions change.
+To tackle this problem, **browserbug offers a set of lint rules to annotate such
+forked codepaths and their associated browser versions versions, via code
+comments**. The lint rules will then alert you when those browser versions
+change.
 
 The comment annotations look like this:
 
@@ -47,6 +48,15 @@ While automated tools and code transpilation go a long way, there are
 categoriesof bugs, workarounds and manual feature detection, that require some
 manual annotation. We hope that these rules help you keep your codebase tidy for
 years to come.
+
+## About the name
+
+The name "browserbug" is tongue-in-cheek. It comes from "that's a browser bug"
+being used as a catch-all phrase, which can mean anything from differing web API
+support, occasional or long-standing browser quirks, manual workarounds, and
+nest bugs. Since manual annotations fill a niche for many of these cases,
+"browserbug" seemed like fun and visually distinct way to mark such code
+sections, even if it is not strictly correct.
 
 ## Where to go from here
 
