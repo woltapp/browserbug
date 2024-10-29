@@ -4,8 +4,6 @@
 
 ## Usage
 
-TODO: Ensure you have node and nvm. Ensure you have the package token.
-
 You'll first need to install
 [Stylelint](https://stylelint.io/user-guide/get-started):
 
