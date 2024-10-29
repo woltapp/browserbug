@@ -1,0 +1,58 @@
+{
+  "name": "@woltapp/stylelint-plugin-browserbug",
+  "version": "0.0.1",
+  "description": "Document, and eventually remove, browser bug workarounds",
+  "license": "MIT",
+  "author": "Wolt Enterprises Oy",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/woltapp/browserbug.git",
+    "directory": "packages/stylelint-plugin-browserbug"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "files": [
+    "dist",
+    "docs"
+  ],
+  "scripts": {
+    "build": "npm-run-all build:lib",
+    "build:lib": "tsup lib/index.ts --clean --format esm,cjs --sourcemap",
+    "check-types": "tsc --noEmit",
+    "check-types:watch": "tsc --noEmit --watch",
+    "lint": "npm-run-all \"lint:*\"",
+    "lint:prettier": "pnpm prettier --check .",
+    "lint:scripts": "eslint lib",
+    "publint": "publint",
+    "prepublishOnly": "pnpm build && publint && attw --pack",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@woltapp/browserbug-core": "workspace:^"
+  },
+  "peerDependencies": {
+    "browserslist": "^4.22.2",
+    "stylelint": "^15.0.0 || ^16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.17.1",
+    "dedent": "1.5.3",
+    "jest-preset-stylelint": "7.1.0"
+  },
+  "keywords": [
+    "stylelint",
+    "stylelint-plugin"
+  ],
+  "engines": {
+    "node": "^20 || ^22"
+  },
+  "publishConfig": {}
+}

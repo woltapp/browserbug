@@ -1,0 +1,17 @@
+import os from 'os';
+import { beforeAll, afterAll } from 'vitest';
+
+const eolDescriptor = Object.getOwnPropertyDescriptor(os, 'EOL');
+
+if (!eolDescriptor) {
+  throw new TypeError('`os` must have an `EOL` property');
+}
+
+beforeAll(() => {
+  // NOTE: `jest.replaceProperty()` is unavailable for a read-only property.
+  Object.defineProperty(os, 'EOL', { ...eolDescriptor, value: '\n' });
+});
+
+afterAll(() => {
+  Object.defineProperty(os, 'EOL', eolDescriptor);
+});

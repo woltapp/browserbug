@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  checks:
+    name: Checks
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        command: ["check-types", "lint", "test"]
+      # We want a comprehensive view of checks, so let them all run even if one fails
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          cache: "pnpm"
+          node-version-file: ".nvmrc"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build all
+        # The plugin packages depend on the parser. This currently works
+        # incidentally, and will be improved when we use a dedicated monorepo
+        # task runner.
+        run: pnpm run -r build
+      - run: pnpm ${{ matrix.command }}

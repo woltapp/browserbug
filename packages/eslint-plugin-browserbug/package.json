@@ -1,0 +1,65 @@
+{
+  "name": "@woltapp/eslint-plugin-browserbug",
+  "version": "0.0.1",
+  "description": "Document, and eventually remove, browser bug workarounds",
+  "license": "MIT",
+  "author": "Wolt Enterprises Oy",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/woltapp/browserbug.git",
+    "directory": "packages/eslint-plugin-browserbug"
+  },
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "docs"
+  ],
+  "scripts": {
+    "build": "npm-run-all build:clean build:lib",
+    "build:clean": "rimraf dist/",
+    "build:lib": "tsc --project tsconfig.lib.json",
+    "check-types": "tsc --noEmit",
+    "check-types:watch": "tsc --noEmit --watch",
+    "eslint-docs": "npm-run-all \"eslint-docs:update -- --check\" eslint-docs:format",
+    "eslint-docs:format": "prettier docs README.md --write",
+    "eslint-docs:update": "eslint-doc-generator .",
+    "lint": "npm-run-all \"lint:*\"",
+    "lint:prettier": "pnpm prettier --check .",
+    "lint:scripts": "eslint lib",
+    "publint": "publint",
+    "prepublishOnly": "pnpm build && publint && attw --pack",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@typescript-eslint/utils": "8.12.1",
+    "@woltapp/browserbug-core": "workspace:^"
+  },
+  "peerDependencies": {
+    "browserslist": "^4.22.2",
+    "eslint": "^9"
+  },
+  "devDependencies": {
+    "@types/node": "20.17.1",
+    "@typescript-eslint/rule-tester": "8.12.1",
+    "eslint": "9.13.0",
+    "eslint-doc-generator": "1.7.1",
+    "eslint-plugin-eslint-plugin": "6.3.1"
+  },
+  "keywords": [
+    "eslint",
+    "eslint-plugin",
+    "eslintplugin"
+  ],
+  "engines": {
+    "node": "^20 || ^22"
+  },
+  "publishConfig": {}
+}

@@ -1,0 +1,20 @@
+{
+  "extends": "@tsconfig/node20/tsconfig.json",
+  "compilerOptions": {
+    // We only use this file for type-checking, but note that tsup will use the
+    // target to inform esbuild's emit
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "isolatedModules": true,
+    "allowJs": true,
+    "checkJs": false,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src",
+    "tests",
+    // Needed to take care of any type merging for tests
+    "vitest-setup.ts"
+  ]
+}

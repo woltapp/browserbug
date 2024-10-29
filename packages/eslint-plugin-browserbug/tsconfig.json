@@ -1,0 +1,18 @@
+{
+  "extends": "@tsconfig/node20/tsconfig.json",
+  "compilerOptions": {
+    // We only use this file for type-checking
+    "noEmit": true,
+    "isolatedModules": true,
+    "allowJs": true,
+    "checkJs": false,
+    "resolveJsonModule": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": [
+    "src",
+    "tests",
+    // Needed to take care of any type merging for tests
+    "vitest-setup.ts"
+  ]
+}

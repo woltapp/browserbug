@@ -1,0 +1,17 @@
+{
+  "extends": "@tsconfig/node20/tsconfig.json",
+  "compilerOptions": {
+    // We only use this file for type-checking, but note that tsup will use the
+    // target to inform esbuild's emit
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist",
+    "allowJs": true,
+    "checkJs": false
+  },
+  "include": ["src"]
+}

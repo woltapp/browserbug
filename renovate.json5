@@ -1,0 +1,58 @@
+{
+  // NOTE: VS Code does not support json5. You should change the file
+  // association to jsonc:
+  // Cmd+Shift+P -> "Configure file association for .json5" -> "JSON with Comments"
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    // Like config:base/config:recommended, but with defaults to pin digests for
+    // actions and docker. Leans on the Renovate team's best practices.
+    // https://docs.renovatebot.com/upgrade-best-practices/#whats-in-the-configbest-practices-preset
+    "config:best-practices",
+    // This pins devDependencies, but keeps dependencies/peerDependencies
+    // unpinned for JS libraries. All packages in this monorepo are libraries,
+    // so this keeps it simple
+    // https://docs.renovatebot.com/presets-config/#configjs-app
+    "config:js-lib",
+    // We want a slower cadence for this repository
+    "schedule:weekly"
+  ],
+  "timezone": "Europe/Helsinki",
+  "labels": ["dependencies", "dependencybot"],
+  "prConcurrentLimit": 5,
+  "postUpdateOptions": ["pnpmDedupe"],
+  // Regenerate the lockfile; this ensures that locked transitive
+  // versions stay up-to-date, and in our version range. See
+  // https://docs.renovatebot.com/configuration-options/#lockfilemaintenance
+  "lockFileMaintenance": {
+    "enabled": true,
+    "postUpdateOptions": ["pnpmDedupe"],
+    "automerge": true
+  },
+  "packageRules": [
+    {
+      /* We can keep native and first-party actions unpinned */
+      "description": "Native and first-party GitHub Actions",
+      "matchDepTypes": ["action"],
+      "matchPackageNames": [
+        "actions/**",
+        // Also GitHub-provided; used for github/codeql-action
+        // @see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning
+        "github/**"
+      ],
+      "pinDigests": false
+    },
+    {
+      // Group all semver-compatible updates together. This reduces the amount
+      // of open PRs significantly.
+      "groupName": "semver-compatible upgrades",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      // 0.x versions can have breaking changes in minor versions
+      "matchCurrentVersion": ">=1.0.0",
+      "automerge": true
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security"]
+  }
+}

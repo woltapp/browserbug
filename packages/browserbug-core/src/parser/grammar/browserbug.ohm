@@ -1,0 +1,44 @@
+Browserbug {
+  Exp
+    = opener ListOf<BrowserAndVersionExp, ","> CommentExp?
+    
+  BrowserAndVersionExp 
+    = ident CompExp
+    
+  CompExp
+    = SingleComparatorExp
+    | MultiComparatorExp
+    
+  SingleComparatorExp
+    = singlecomparator Version
+    
+  MultiComparatorExp
+    = multicomparator Version Version
+
+  Version
+    = number "." number  -- majorminor
+    | number            -- major
+
+  CommentExp 
+    = commentstart commentChars?
+
+  commentChars
+    = ~end any+
+
+  ident (an identifier)
+    = ~reserved identifierPart+  
+
+  identifierPart
+    = alnum 
+    | "_"
+    | "-"
+
+  number (a number)
+    = digit+
+
+  opener = "@browserbug"
+  singlecomparator = "lte" | "lt" | "lower-than-or-equal" | "lower-than" | "equal" | "last-checked"
+  multicomparator = "between"
+  commentstart = "--"
+  reserved = opener | singlecomparator | multicomparator | commentstart 
+}

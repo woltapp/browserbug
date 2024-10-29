@@ -1,0 +1,52 @@
+{
+  "name": "@woltapp/browserbug-core",
+  "version": "0.0.1",
+  "description": "",
+  "license": "MIT",
+  "author": "Wolt Enterprises Oy",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/woltapp/browserbug.git",
+    "directory": "packages/browserbug-core"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "main": "./dist/index.cjs",
+  "scripts": {
+    "build": "npm-run-all build:grammar build:lib",
+    "build:grammar": "pnpm ohm generateBundles --withTypes --esm src/parser/grammar/browserbug.ohm",
+    "build:lib": "tsup src/index.ts --clean --format esm,cjs --dts",
+    "check-types": "tsc --noEmit",
+    "check-types:watch": "tsc --noEmit --watch",
+    "lint": "npm-run-all \"lint:*\"",
+    "lint:prettier": "pnpm prettier --check .",
+    "lint:scripts": "eslint src",
+    "prepublishOnly": "pnpm build && publint && attw --pack",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "ohm-js": "^17.1.0"
+  },
+  "peerDependencies": {
+    "browserslist": "^4.23.0"
+  },
+  "devDependencies": {
+    "@ohm-js/cli": "2.0.0",
+    "fast-check": "3.22.0"
+  },
+  "keywords": [
+    "browserbug"
+  ],
+  "publishConfig": {}
+}
