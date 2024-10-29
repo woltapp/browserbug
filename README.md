@@ -1,4 +1,4 @@
-# browserbug
+# browserbug 🌐🐛
 
 > Lint rules for documenting, and eventually removing, browser bug workarounds
 
@@ -18,9 +18,20 @@ larger bundle sizes, and makes the codebase less inviting.
 
 ### The core solution
 
-To tackle this problem, these lint rules offer a way to document such forked
-codepaths and their associated browser versions versions. The lint rules will
-then alert you when those browser versions change.
+To tackle this problem, these lint rules offer a way to **annotate such forked
+codepaths and their associated browser versions versions via code comments**.
+The lint rules will then alert you when those browser versions change.
+
+The comment annotations look like this:
+
+```tsx
+/** @browserbug firefox lower-than 121 -- Need to support this */
+if (!CSS.supports('selector(:has(a))')) {
+  // some fallback, potentially quite convoluted
+} else {
+  // something else
+}
+```
 
 The rules are backed by your project's
 [browserslist config](https://github.com/browserslist/browserslist#browserslist-).
@@ -28,14 +39,14 @@ Browserslist is commonly used by similar tools, such as automated code
 transpilation via Babel, SWC, and PostCSS, in order to avoid transpiling for
 unsupported browsers.
 
-Thus, by using browserslist as the source of truth for the rules, you are
-prompted to change things **at a pace dictated by your project's browser
-support**, instead of arbitrary version numbers.
+By using browserslist as the source of truth for the rules, you are prompted to
+change things **at a pace dictated by your project's browser support**, instead
+of arbitrary version numbers.
 
-While automated tools and code transpilation go a long way, there are categories
-of bugs, workarounds and manual feature detection, that require some manual
-annotation. We hope that these rules help you keep your codebase tidy for years
-to come.
+While automated tools and code transpilation go a long way, there are
+categoriesof bugs, workarounds and manual feature detection, that require some
+manual annotation. We hope that these rules help you keep your codebase tidy for
+years to come.
 
 ## Where to go from here
 
