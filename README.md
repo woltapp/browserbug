@@ -52,8 +52,8 @@ to come.
 The name "browserbug" is tongue-in-cheek. It comes from "that's a browser bug"
 being used as a catch-all phrase, which can mean anything from differing web API
 support, occasional or long-standing browser quirks, manual workarounds, and
-nest bugs. Since manual annotations fill a niche for many of these cases,
-"browserbug" seemed like fun and visually distinct way to mark such code
+downright browser bugs. Since manual annotations fill a niche for many of these
+cases, "browserbug" seemed like fun and visually distinct way to mark such code
 sections, even if it is not strictly correct.
 
 ## Where to go from here
