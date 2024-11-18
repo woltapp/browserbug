@@ -84,13 +84,18 @@ export default createRule({
               );
               if (!status.supported) {
                 if (!status.lowestVersion) {
-                  context.report({
-                    loc: loc!, // gotta figure this one out
-                    messageId: 'unsupported',
-                    data: {
-                      browser: descriptor.browser,
-                    },
-                  });
+                  const behavior = context.settings.browserbug?.unknownVersionBehavior || 'warn';
+                  if (behavior === 'error') {
+                    context.report({
+                      loc: loc!, // gotta figure this one out
+                      messageId: 'unsupported',
+                      data: {
+                        browser: descriptor.browser,
+                      },
+                    });
+                  } else if (behavior === 'warn') {
+                    console.warn(`Warning: Unsupported browser ${descriptor.browser}`);
+                  }
                 } else {
                   context.report({
                     loc: loc!, // gotta figure this one out
