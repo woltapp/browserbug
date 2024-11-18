@@ -1,0 +1,18 @@
+{
+  "settings": {
+    "browserbug": {
+      "unknownVersionBehavior": "ignore" // Options: "error", "warn", "ignore"
+    }
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "globals": {
+    "console": "readonly"
+  },
+  "rules": {
+    "no-console": "off",
+    "no-undef": ["error", { "typeof": true }]
+  }
+}

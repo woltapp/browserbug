@@ -7,6 +7,7 @@ const recommended = (plugin: FlatConfig.Plugin): FlatConfig.Config => ({
   },
   rules: {
     'browserbug/no-outdated': 'error',
+    'browserbug/unknown-version': 'warn',
   },
 });
 

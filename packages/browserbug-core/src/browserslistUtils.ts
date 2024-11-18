@@ -4,6 +4,20 @@ export function parseBrowserslistVersion(version: string) {
     return 0;
   }
 
+  if (version === 'unknown') {
+    // Handle unknown versions based on configuration
+    const behavior = getConfigOption('unknownVersionBehavior', 'warn');
+    switch (behavior) {
+      case 'error':
+        throw new Error(`Unknown browser version: ${version}`);
+      case 'warn':
+        console.warn(`Warning: Unknown browser version: ${version}`);
+        return -1; // or some default fallback
+      case 'ignore':
+        return -1; // or some default fallback
+    }
+  }
+
   return version.includes('-')
     ? // e.g. "15.2-15.3", which happens in safari
       parseFloat(version.split('-')[0])
