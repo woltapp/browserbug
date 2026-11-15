@@ -1,8 +1,11 @@
 import { AST_TOKEN_TYPES } from '@typescript-eslint/utils';
 import {
-  type BrowserbugDescriptor,
+  type BrowserDescriptor,
   parseBrowserbug,
   getBrowserSupportStatus,
+  getWebFeatureSupportStatus,
+  isWebFeatureDescriptor,
+  webFeatures,
 } from '@woltapp/browserbug-core';
 import browserslist from 'browserslist';
 import { createRule } from '../rule';
@@ -24,6 +27,8 @@ export default createRule({
         'Outdated @browserbug declaration. The lowest supported version for {{ browser }} is {{ lowestSupportedVersion }}, but the declaration resolves to {{ actualVersion }}.',
       unsupported:
         'Outdated @browserbug declaration. Browser {{ browser }} is not in the list of supported browsers.',
+      webFeatureOutdated:
+        'Outdated @browserbug declaration. Every supported browser supports the web-feature {{ feature }}.',
       parseError: '@browserbug parsing error: {{ errorMessage }}',
     },
   },
@@ -61,7 +66,9 @@ export default createRule({
                   : comment.value.slice(openerPos, comment.value.length).trim();
             }
 
-            const parseResult = parseBrowserbug(toParse, browserslist.data);
+            const parseResult = parseBrowserbug(toParse, browserslist.data, {
+              webFeatures,
+            });
 
             if (!parseResult.success) {
               context.report({
@@ -78,6 +85,22 @@ export default createRule({
             }
 
             for (const descriptor of parseResult.data) {
+              if (isWebFeatureDescriptor(descriptor)) {
+                const status = getWebFeatureSupportStatus(
+                  descriptor,
+                  supportTargets,
+                  webFeatures,
+                );
+                if (!status.supported) {
+                  context.report({
+                    loc: loc!,
+                    messageId: 'webFeatureOutdated',
+                    data: { feature: descriptor.webFeature },
+                  });
+                }
+                continue;
+              }
+
               const status = getBrowserSupportStatus(
                 descriptor,
                 supportTargets,
@@ -111,7 +134,7 @@ export default createRule({
   },
 });
 
-function getDescriptorVersionBound(descriptor: BrowserbugDescriptor) {
+function getDescriptorVersionBound(descriptor: BrowserDescriptor) {
   return typeof descriptor.version === 'number'
     ? descriptor.version
     : descriptor.version[1];

@@ -44,14 +44,16 @@
   },
   "peerDependencies": {
     "browserslist": "^4.22.2",
-    "eslint": "^9"
+    "eslint": "^9",
+    "web-features": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "20.17.1",
     "@typescript-eslint/rule-tester": "8.12.1",
     "eslint": "9.13.0",
     "eslint-doc-generator": "1.7.1",
-    "eslint-plugin-eslint-plugin": "6.3.1"
+    "eslint-plugin-eslint-plugin": "6.3.1",
+    "web-features": "3.46.0"
   },
   "keywords": [
     "eslint",
@@ -59,7 +61,7 @@
     "eslintplugin"
   ],
   "engines": {
-    "node": "^20 || ^22"
+    "node": "^20.19 || >=22.12"
   },
   "publishConfig": {}
 }

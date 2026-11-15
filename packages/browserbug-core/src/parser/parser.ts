@@ -23,7 +23,7 @@ export type SingleComparator = (typeof singleComparators)[number];
 export type MultiComparator = (typeof multiComparators)[number];
 export type Comparator = SingleComparator & MultiComparator;
 
-export type BrowserbugDescriptor = {
+export type BrowserDescriptor = {
   browser: string;
 } & (
   | {
@@ -35,6 +35,50 @@ export type BrowserbugDescriptor = {
       version: [number, number];
     }
 );
+
+/** `web-feature <id>`: a feature from the web-features dataset. */
+export type WebFeatureDescriptor = {
+  webFeature: string;
+};
+
+export type BrowserbugDescriptor = BrowserDescriptor | WebFeatureDescriptor;
+
+export function isWebFeatureDescriptor(
+  descriptor: BrowserbugDescriptor,
+): descriptor is WebFeatureDescriptor {
+  return 'webFeature' in descriptor;
+}
+
+/** Browsers that web-features reports support for. */
+export type WebFeaturesBrowser =
+  | 'chrome'
+  | 'chrome_android'
+  | 'edge'
+  | 'firefox'
+  | 'firefox_android'
+  | 'safari'
+  | 'safari_ios';
+
+/**
+ * The subset of the web-features `features` export that browserbug reads.
+ * Pass `features` from the `web-features` package.
+ */
+export type WebFeaturesData = Readonly<
+  Record<
+    string,
+    | {
+        kind: 'feature';
+        status: { support: Partial<Record<WebFeaturesBrowser, string>> };
+      }
+    | { kind: 'moved'; redirect_target: string }
+    | { kind: 'split'; redirect_targets: string[] }
+  >
+>;
+
+export type ParseOptions = {
+  /** Required to validate and resolve `web-feature` descriptors. */
+  webFeatures?: WebFeaturesData;
+};
 
 type ExtractResult = {
   declarations: Array<BrowserbugDescriptor>;
@@ -54,6 +98,12 @@ const semantics = grammar.createSemantics().addOperation('extract', {
   },
   CommentExp(_commentStartNode, commentContentNode) {
     return commentContentNode.sourceString;
+  },
+  DescriptorExp: (node) => {
+    return node.extract();
+  },
+  WebFeatureExp: (_webFeatureKeyword, featureId) => {
+    return { webFeature: featureId.sourceString };
   },
   BrowserAndVersionExp: (browser, comparatorAndVersion) => {
     return {
@@ -125,6 +175,7 @@ export type ParseResult = Result<
 export function parseBrowserbug(
   input: string,
   browserslistData: BrowserslistData,
+  options: ParseOptions = {},
 ): ParseResult {
   const match = grammar.match(input);
 
@@ -145,9 +196,10 @@ export function parseBrowserbug(
   const { declarations } = semantics(match).extract() as ExtractResult;
 
   // Gather all validation errors into one message, for now
-  const normalised = declarations.map(
-    (desc) => normaliseDescriptor(desc, browserslistData),
-    browserslistData,
+  const normalised = declarations.map((desc) =>
+    isWebFeatureDescriptor(desc)
+      ? validateWebFeatureDescriptor(desc, options.webFeatures)
+      : normaliseDescriptor(desc, browserslistData),
   );
 
   const validationErrors = normalised
@@ -167,10 +219,57 @@ export function parseBrowserbug(
   };
 }
 
+function validateWebFeatureDescriptor(
+  descriptor: WebFeatureDescriptor,
+  webFeatures: WebFeaturesData | undefined,
+): Result<WebFeatureDescriptor, ValidationError> {
+  const id = descriptor.webFeature;
+
+  if (!webFeatures) {
+    return {
+      success: false,
+      error: {
+        shortMessage: `Cannot resolve web-feature ${id}: no web-features data was provided.`,
+      },
+    };
+  }
+
+  const feature = Object.hasOwn(webFeatures, id) ? webFeatures[id] : undefined;
+
+  if (!feature) {
+    return {
+      success: false,
+      error: {
+        shortMessage: `Unknown web-feature ${id}. See https://web-platform-dx.github.io/web-features-explorer/ for feature ids.`,
+      },
+    };
+  }
+
+  if (feature.kind === 'moved') {
+    return {
+      success: false,
+      error: {
+        shortMessage: `The web-feature ${id} has moved. Use ${feature.redirect_target} instead.`,
+      },
+    };
+  }
+
+  if (feature.kind === 'split') {
+    return {
+      success: false,
+      error: {
+        shortMessage: `The web-feature ${id} was split. Use one of ${feature.redirect_targets.join(', ')} instead.`,
+      },
+    };
+  }
+
+  return { success: true, data: descriptor };
+}
+
 function normaliseDescriptor(
-  raw: BrowserbugDescriptor,
+  raw: BrowserDescriptor,
   browserslistData: BrowserslistData,
-): Result<BrowserbugDescriptor, ValidationError> {
+): Result<BrowserDescriptor, ValidationError> {
   const { version } = raw;
 
   // browserslist browser names are lowercase

@@ -39,11 +39,13 @@
     "ohm-js": "^17.1.0"
   },
   "peerDependencies": {
-    "browserslist": "^4.23.0"
+    "browserslist": "^4.23.0",
+    "web-features": "^3.0.0"
   },
   "devDependencies": {
     "@ohm-js/cli": "2.0.0",
-    "fast-check": "3.22.0"
+    "fast-check": "3.22.0",
+    "web-features": "3.46.0"
   },
   "keywords": [
     "browserbug"

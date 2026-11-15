@@ -57,6 +57,32 @@ descriptors, starting with `--`.
 /* @browserbug chrome last-checked-between 117 121 -- Same as last-checked, but documents when a workaround started */
 ```
 
+#### `web-feature` descriptors
+
+Instead of writing out browser versions, a descriptor can name a feature from
+the [web-features](https://github.com/web-platform-dx/web-features) dataset,
+using its id (see the
+[web-features explorer](https://web-platform-dx.github.io/web-features-explorer/)).
+The `no-outdated` rule reports it once every browser in your browserslist
+targets supports that feature.
+
+```css
+/* @browserbug web-feature scrollend -- Settle on a debounced scroll instead */
+/* @browserbug web-feature scroll-driven-animations, safari last-checked 18.0 */
+```
+
+- web-features has support data for Chrome, Chrome Android, Edge, Firefox,
+  Firefox Android, Safari and Safari iOS (`chrome`, `and_chr`, `edge`,
+  `firefox`, `and_ff`, `safari`, `ios_saf` in browserslist). Other browserslist
+  targets, such as `samsung` or `op_mini`, are not considered.
+- Versions given as "≤N" in the dataset are treated as N.
+- Unknown ids are a parse error. Ids that web-features has moved or split are
+  also a parse error, which names the replacement id(s).
+- `web-features` is a peer dependency, like `browserslist`: install it yourself
+  (`npm i -D web-features`, version 3 or later). Its data is only as current as
+  the version you have installed, so keep it updated (it is released roughly
+  weekly), for example with Renovate or Dependabot.
+
 ## Rules
 
 💼 Configurations enabled in.\

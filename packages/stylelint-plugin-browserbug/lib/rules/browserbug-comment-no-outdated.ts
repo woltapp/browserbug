@@ -1,7 +1,10 @@
 import {
   getBrowserSupportStatus,
+  getWebFeatureSupportStatus,
+  isWebFeatureDescriptor,
+  webFeatures,
   parseBrowserbug,
-  type BrowserbugDescriptor,
+  type BrowserDescriptor,
 } from '@woltapp/browserbug-core';
 import browserslist from 'browserslist';
 import stylelint, { Rule } from 'stylelint';
@@ -19,6 +22,8 @@ export const messages = ruleMessages(ruleName, {
     `Unexpected outdated @browserbug declaration. The lowest supported version for ${browser} is ${lowestSupportedVersion}, but the declarations resolves to ${actualVersion}.`,
   unsupported: (browser) =>
     `Unexpected outdated @browserbug declaration. Browser '${browser}' is not in the list of supported browsers.`,
+  webFeatureOutdated: (feature) =>
+    `Unexpected outdated @browserbug declaration. Every supported browser supports the web-feature '${feature}'.`,
 });
 
 const meta = {
@@ -74,7 +79,9 @@ const ruleFunction: Rule = (
 
         const toParse = commentNode.text.slice(openerPos, endPos);
 
-        const parseResult = parseBrowserbug(toParse, browserslist.data);
+        const parseResult = parseBrowserbug(toParse, browserslist.data, {
+          webFeatures,
+        });
 
         if (!parseResult.success) {
           report({
@@ -98,6 +105,28 @@ const ruleFunction: Rule = (
         }
 
         for (const descriptor of parseResult.data) {
+          if (isWebFeatureDescriptor(descriptor)) {
+            const status = getWebFeatureSupportStatus(
+              descriptor,
+              supportTargets,
+              webFeatures,
+            );
+            if (!status.supported) {
+              report({
+                node: commentNode,
+                message: messages.webFeatureOutdated,
+                messageArgs: [descriptor.webFeature] satisfies Parameters<
+                  typeof messages.webFeatureOutdated
+                >,
+                index: openerPos,
+                endIndex: endPos,
+                result,
+                ruleName,
+              });
+            }
+            continue;
+          }
+
           const status = getBrowserSupportStatus(descriptor, supportTargets);
           if (!status.supported) {
             if (!status.lowestVersion) {
@@ -149,7 +178,7 @@ export default createPlugin(ruleName, ruleFunction);
 
 // Helpers
 
-function getDescriptorVersionBound(descriptor: BrowserbugDescriptor) {
+function getDescriptorVersionBound(descriptor: BrowserDescriptor) {
   return typeof descriptor.version === 'number'
     ? descriptor.version
     : descriptor.version[1];

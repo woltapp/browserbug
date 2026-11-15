@@ -40,19 +40,21 @@
   },
   "peerDependencies": {
     "browserslist": "^4.22.2",
-    "stylelint": "^15.0.0 || ^16.0.0"
+    "stylelint": "^15.0.0 || ^16.0.0",
+    "web-features": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "20.17.1",
     "dedent": "1.5.3",
-    "jest-preset-stylelint": "7.1.0"
+    "jest-preset-stylelint": "7.1.0",
+    "web-features": "3.46.0"
   },
   "keywords": [
     "stylelint",
     "stylelint-plugin"
   ],
   "engines": {
-    "node": "^20 || ^22"
+    "node": "^20.19 || >=22.12"
   },
   "publishConfig": {}
 }

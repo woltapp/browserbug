@@ -81,9 +81,33 @@ testRule({
         `,
       description: 'Valid syntax, mulitline, multiple @browserbug statements',
     },
+    {
+      code: '/* @browserbug web-feature scroll-driven-animations -- Fade */ .my-class {}',
+      description: 'web-feature still lacking in a target',
+    },
   ],
 
   reject: [
+    {
+      code: '/* @browserbug web-feature grid */ .my-class {}',
+      description: 'web-feature supported by every target',
+      message: messages.webFeatureOutdated('grid'),
+      line: 1,
+      endLine: 1,
+      column: 1,
+      endColumn: 29,
+    },
+    {
+      code: '/* @browserbug web-feature not-a-real-feature */ .my-class {}',
+      description: 'Unknown web-feature',
+      message: messages.parseError(
+        'Unknown web-feature not-a-real-feature. See https://web-platform-dx.github.io/web-features-explorer/ for feature ids.',
+      ),
+      line: 1,
+      endLine: 1,
+      column: 1,
+      endColumn: 43,
+    },
     {
       // FIXME: We have to specify the error here, but that's pretty annoying.
       // Maybe there is a way to specify an id instead? We can revisit this when

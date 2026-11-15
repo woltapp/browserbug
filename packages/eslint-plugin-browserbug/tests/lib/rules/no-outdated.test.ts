@@ -140,9 +140,39 @@ ruleTester.run('no-outdated', rule, {
         browserslistQuery: 'chrome 109, firefox 106',
       },
     },
+    // web-feature descriptors
+    {
+      name: 'web-feature still lacking in a target',
+      code: '// @browserbug web-feature scrollend -- Debounced scroll fallback',
+      settings: {
+        browserslistQuery: 'chrome 109, firefox 130',
+      },
+    },
+    {
+      name: 'web-feature mixed with a browser descriptor',
+      code: '// @browserbug web-feature scrollend, chrome lower-than 114',
+      settings: {
+        browserslistQuery: 'chrome 109',
+      },
+    },
   ],
 
   invalid: [
+    // web-feature descriptors
+    {
+      code: '// @browserbug web-feature scrollend -- Debounced scroll fallback',
+      errors: [{ messageId: 'webFeatureOutdated' }],
+      settings: {
+        browserslistQuery: 'chrome 120, firefox 130',
+      },
+    },
+    {
+      code: '// @browserbug web-feature not-a-real-feature',
+      errors: [{ messageId: 'parseError' }],
+      settings: {
+        browserslistQuery: 'chrome 120',
+      },
+    },
     // Errors about outdated declaration
     {
       code: '// @browserbug chrome lower-than 109 -- This API is not available',
