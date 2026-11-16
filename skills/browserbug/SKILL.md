@@ -2,11 +2,11 @@
 name: browserbug
 description:
   Annotate browser-specific workarounds with `@browserbug` comments, so the
-  browserbug ESLint/Stylelint rules flag them once the project's browserslist
-  targets no longer need them. Use when writing or reviewing code that works
-  around a browser bug or quirk, feature-detects an API with a fallback, or
-  progressively enhances for some browsers; and when a `browserbug/no-outdated`
-  or `browserbug-comment-no-outdated` lint error asks for a workaround to be
+  browserbug lint rules flag them once the project's browserslist targets no
+  longer need them. Use when writing or reviewing code that works around a
+  browser bug or quirk, feature-detects an API with a fallback, or progressively
+  enhances for some browsers; and when a `browserbug/no-outdated` or
+  `browserbug-comment-no-outdated` lint error asks for a workaround to be
   re-evaluated.
 ---
 
@@ -107,10 +107,10 @@ bug report when there is one (crbug.com, bugzilla.mozilla.org, bugs.webkit.org).
 
 ## Verify
 
-Run the project's ESLint/Stylelint on the changed files. If the new annotation
-is reported as outdated straight away, the targets already exclude the affected
-browsers: the workaround is probably removable, so say so instead of adjusting
-the annotation to silence the rule.
+Run the project's linters (ESLint, Stylelint, etc.) on the changed files. If the
+new annotation is reported as outdated straight away, the targets already
+exclude the affected browsers: the workaround is probably removable, so say so
+instead of adjusting the annotation to silence the rule.
 
 ## Resolving an outdated report
 
