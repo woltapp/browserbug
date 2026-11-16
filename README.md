@@ -47,6 +47,21 @@ of bugs, workarounds and manual feature detection, that require some manual
 annotation. We hope that these rules help you keep your codebase tidy for years
 to come.
 
+## Agent skill
+
+The [`browserbug` agent skill](./skills/browserbug/SKILL.md) teaches coding
+agents when and how to add `@browserbug` annotations, and how to resolve an
+outdated one. It ships inside both lint plugins, under `skills/browserbug`.
+
+With pnpm, the skill is linked into your agent's skills directory (such as
+`.claude/skills`) once you approve it; see
+[pnpm's agent skills docs](https://pnpm.io/agent-skills):
+
+```sh
+pnpm install
+pnpm approve
+```
+
 ## About the name
 
 The name "browserbug" is tongue-in-cheek. It comes from "that's a browser bug"

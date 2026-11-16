@@ -83,6 +83,13 @@ targets supports that feature.
   the version you have installed, so keep it updated (it is released roughly
   weekly), for example with Renovate or Dependabot.
 
+## Agent skill
+
+This package ships a `browserbug` agent skill, which teaches coding agents to
+add and resolve `@browserbug` annotations. See
+[Agent skill](https://github.com/woltapp/browserbug#agent-skill) for how to
+install it.
+
 ## Rules
 
 💼 Configurations enabled in.\

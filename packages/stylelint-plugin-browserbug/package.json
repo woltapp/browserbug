@@ -21,16 +21,19 @@
   "main": "./dist/index.cjs",
   "files": [
     "dist",
-    "docs"
+    "docs",
+    "skills"
   ],
   "scripts": {
     "build": "npm-run-all build:lib",
     "build:lib": "tsup lib/index.ts --clean --format esm,cjs --sourcemap",
     "check-types": "tsc --noEmit",
     "check-types:watch": "tsc --noEmit --watch",
+    "copy-skills": "node -e \"const fs = require('node:fs'); fs.rmSync('skills', { recursive: true, force: true }); fs.cpSync('../../skills', 'skills', { recursive: true })\"",
     "lint": "npm-run-all \"lint:*\"",
     "lint:prettier": "pnpm prettier --check .",
     "lint:scripts": "eslint lib",
+    "prepack": "pnpm copy-skills",
     "publint": "publint",
     "prepublishOnly": "pnpm build && publint && attw --pack",
     "test": "vitest"
