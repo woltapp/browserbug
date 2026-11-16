@@ -115,11 +115,10 @@ descriptors, starting with `--`.
 // @browserbug chrome equal 117
 // @browserbug chrome between 117 120 -- Inclusive range
 //
-// These descriptors are equivalent to 'equal' and 'between' for the purposes of no-outdated.
-// Additionally, the last-checked-updated rule will report an error if there is a newer version of the specified versions available.
+// last-checked is equivalent to 'equal' for the purposes of no-outdated, but
+// documents the version the workaround was last verified against.
 //
 // @browserbug chrome last-checked 121
-// @browserbug chrome last-checked-between 117 121 -- Same as last-checked, but documents when a workaround started
 ```
 
 ## Configurations

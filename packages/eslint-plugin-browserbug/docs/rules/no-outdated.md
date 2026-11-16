@@ -23,9 +23,9 @@ safari 16.4
 ```
 
 ```js
-// @browserbug chrome under 117 -- Work around bug
+// @browserbug chrome lower-than 117 -- Work around bug
 // @browserbug chrome between 117 120 -- Work around bug
-// @browserbug firefox under 80 -- Work around bug
+// @browserbug firefox lower-than 80 -- Work around bug
 // @browserbug unknown 123 -- Work around bug
 ```
 

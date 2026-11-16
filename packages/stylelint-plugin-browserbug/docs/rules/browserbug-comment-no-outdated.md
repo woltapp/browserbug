@@ -14,7 +14,7 @@ safari 16.4
 ```
 
 ```css
-/*  @browserbug chrome under 117 -- Work around bug */
+/*  @browserbug chrome lower-than 117 -- Work around bug */
 /** ↑
  * Comments for unsupported browsers, like this */
 ```
@@ -42,9 +42,9 @@ safari 16.4
 The following patterns are considered problems:
 
 ```css
-/* @browserbug chrome under 117 -- Work around bug */
+/* @browserbug chrome lower-than 117 -- Work around bug */
 /* @browserbug chrome between 117 120 -- Work around bug */
-/* @browserbug firefox under 80 -- Work around bug */
+/* @browserbug firefox lower-than 80 -- Work around bug */
 /* @browserbug unknown 123 -- Work around bug */
 ```
 
