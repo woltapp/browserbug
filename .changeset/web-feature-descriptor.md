@@ -1,7 +1,7 @@
 ---
-'@woltapp/browserbug-core': minor
-'@woltapp/eslint-plugin-browserbug': minor
-'@woltapp/stylelint-plugin-browserbug': minor
+'@woltapp/browserbug-core': major
+'@woltapp/eslint-plugin-browserbug': major
+'@woltapp/stylelint-plugin-browserbug': major
 ---
 
 Add `web-feature <id>` descriptors, resolved against the web-features dataset.
