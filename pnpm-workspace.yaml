@@ -7,11 +7,7 @@ packages:
 # 7 days in minutes, matches minimumReleaseAge in renovate.json5
 minimumReleaseAge: 10080
 
-minimumReleaseAgeExclude:
-  # First-party packages can be installed immediately.
-  - "@woltapp/*"
-
-# Drop exclusions from the list above once they are no longer needed.
+# Drop any minimumReleaseAgeExclude entries once they are no longer needed.
 minimumReleaseAgeExcludePrune: true
 
 # Prevent exotic protocols (git/https tarballs etc.) from being resolved in transitive deps.

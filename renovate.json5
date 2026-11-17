@@ -22,9 +22,6 @@
       // install.
       "description": "Match the pnpm minimumReleaseAge in pnpm-workspace.yaml",
       "matchManagers": ["npm"],
-      // Mirrors minimumReleaseAgeExclude in pnpm-workspace.yaml: first-party
-      // packages can be installed immediately.
-      "matchPackageNames": ["!@woltapp/*"],
       "minimumReleaseAge": "7 days"
     },
     {
