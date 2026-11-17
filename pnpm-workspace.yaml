@@ -34,8 +34,7 @@ strictDepBuilds: true
 trustPolicy: no-downgrade
 
 trustPolicyExclude:
-  # Older majors published before their maintainers adopted provenance; same
-  # exclusions as other Wolt repositories.
+  # Older majors, published before their maintainers adopted provenance.
   - semver@6.3.1
   - undici-types@6.19.8
   # Required by @types/node@22.x (kept on 22, the oldest Node in the
@@ -43,6 +42,6 @@ trustPolicyExclude:
   # release (7.1.0, 2024-12-03).
   - undici-types@6.21.0
 
-# Prompt users if their node_modules is out of date.
-# This helps catch "changed branch but did not reinstall" issues.
-verifyDepsBeforeRun: warn
+# Install dependencies before running scripts, if node_modules is out of date.
+# This catches "changed branch but did not reinstall" issues.
+verifyDepsBeforeRun: install
