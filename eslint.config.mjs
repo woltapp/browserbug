@@ -15,4 +15,10 @@ export default defineConfig(
   eslintJs.configs.recommended,
   tseslint.configs.recommended,
   eslintPlugin.configs.recommended,
+  {
+    rules: {
+      // Always brace control statements, even single-line ones
+      curly: ['error', 'all'],
+    },
+  },
 );

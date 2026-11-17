@@ -60,7 +60,9 @@ export function getWebFeatureSupportStatus(
 
   for (const target of getLowestSupportedBrowsersFromTargets(supportTargets)) {
     const key = browserslistToWebFeaturesBrowser[target.target];
-    if (!key) continue;
+    if (!key) {
+      continue;
+    }
 
     const supportedSince = parseWebFeaturesVersion(feature.status.support[key]);
 
@@ -82,7 +84,9 @@ export function getWebFeatureSupportStatus(
  * errs towards keeping a workaround slightly longer.
  */
 function parseWebFeaturesVersion(version: string | undefined): number | null {
-  if (version === undefined) return null;
+  if (version === undefined) {
+    return null;
+  }
   const parsed = parseFloat(version.replace(/^≤/, ''));
   return Number.isNaN(parsed) ? null : parsed;
 }
