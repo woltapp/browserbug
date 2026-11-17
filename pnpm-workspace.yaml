@@ -1,2 +1,52 @@
 packages:
   - "packages/*"
+
+# Supply-chain hardening.
+
+# Give some breathing room to avoid any accidental or malicious one-off releases
+# 7 days in minutes, matches minimumReleaseAge in renovate.json5
+minimumReleaseAge: 10080
+
+minimumReleaseAgeExclude:
+  # First-party packages can be installed immediately.
+  - "@woltapp/*"
+
+# Drop exclusions from the list above once they are no longer needed.
+minimumReleaseAgeExcludePrune: true
+
+# Prevent exotic protocols (git/https tarballs etc.) from being resolved in transitive deps.
+# Only direct dependencies are allowed to use exotic sources.
+blockExoticSubdeps: true
+
+# Fine-grained allow/deny for dependency build (postinstall) scripts.
+allowBuilds:
+  esbuild: true
+  # Comes in through jest (a peer of jest-preset-stylelint; tests run on vitest).
+  # Its install script only compiles from source when no prebuilt binary
+  # matches, and we never use the file watcher, so skip it.
+  "@parcel/watcher": false
+
+# Exits if there are any dependencies with unreviewed build (postinstall) scripts.
+# This ensures that any dependency addition, whether on our behalf or by Renovate,
+# is reviewed, and does not fail quietly due to missing postinstall scripts.
+strictDepBuilds: true
+
+# Avoid installing unverified dependency versions, if a dependency was
+# previously verified / published with provenance. This covers cases where a
+# malicious version is published by stealing a maintainer's tokens, but without
+# hijacking CI (which is what does the verified publishing).
+trustPolicy: no-downgrade
+
+trustPolicyExclude:
+  # Older majors published before their maintainers adopted provenance; same
+  # exclusions as other Wolt repositories.
+  - semver@6.3.1
+  - undici-types@6.19.8
+  # Required by @types/node@22.x (kept on 22, the oldest Node in the
+  # published `engines`). Published 2024-11-13, before undici-types' first attested
+  # release (7.1.0, 2024-12-03).
+  - undici-types@6.21.0
+
+# Prompt users if their node_modules is out of date.
+# This helps catch "changed branch but did not reinstall" issues.
+verifyDepsBeforeRun: warn

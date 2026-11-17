@@ -13,6 +13,8 @@ import {
 
 export interface BrowserbugActionDict<T> extends BaseActionDict<T> {
   Exp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: IterationNode) => T;
+  DescriptorExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  WebFeatureExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   BrowserAndVersionExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   CompExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   SingleComparatorExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
@@ -24,10 +26,12 @@ export interface BrowserbugActionDict<T> extends BaseActionDict<T> {
   commentChars?: (this: NonterminalNode, arg0: IterationNode) => T;
   ident?: (this: NonterminalNode, arg0: IterationNode) => T;
   identifierPart?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
+  featureId?: (this: NonterminalNode, arg0: IterationNode) => T;
   number?: (this: NonterminalNode, arg0: IterationNode) => T;
   opener?: (this: NonterminalNode, arg0: TerminalNode) => T;
   singlecomparator?: (this: NonterminalNode, arg0: TerminalNode) => T;
   multicomparator?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  webfeature?: (this: NonterminalNode, arg0: TerminalNode) => T;
   commentstart?: (this: NonterminalNode, arg0: TerminalNode) => T;
   reserved?: (this: NonterminalNode, arg0: NonterminalNode) => T;
 }

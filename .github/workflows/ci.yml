@@ -7,6 +7,9 @@ on:
     branches:
       - "**"
 
+permissions:
+  contents: read
+
 jobs:
   checks:
     name: Checks
@@ -17,11 +20,17 @@ jobs:
       # We want a comprehensive view of checks, so let them all run even if one fails
       fail-fast: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+        # Installs the pnpm version from devEngines in package.json
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
+        with:
+          install: false
+          node-version-file: false
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           cache: "pnpm"
           node-version-file: ".nvmrc"

@@ -45,57 +45,92 @@ if (!supportsFocusVisibleOption()) {
 
 ## Usage
 
-### Step 1: Install ESLint
+### Step 1: Install the plugin
+
+The plugin supports ESLint 9 and 10, with
+[flat config](https://eslint.org/docs/latest/use/configure/configuration-files).
+`browserslist` and `web-features` are peer dependencies.
 
 ```sh
-npm i @woltapp/eslint-plugin-browserbug --save-dev
+npm i --save-dev eslint @woltapp/eslint-plugin-browserbug browserslist web-features
 ```
 
 ### Step 2: Configure rules
 
 Add browserbug to your
-[ESLint configuration file](https://eslint.org/docs/latest/use/configure/configuration-files).
+[ESLint configuration file](https://eslint.org/docs/latest/use/configure/configuration-files)
+(`eslint.config.js`, `eslint.config.mjs` or `eslint.config.ts`).
 
 If you use the recommended config:
 
 ```js
+// eslint.config.mjs
+import { defineConfig } from 'eslint/config';
 import browserbug from '@woltapp/eslint-plugin-browserbug';
 
-export default [
-  browserbug.configs.recommended,
-  {
-    rules: {
-      // customise any rules here
-      'browserbug/no-outdated': 'error',
-    },
+export default defineConfig(browserbug.configs.recommended, {
+  rules: {
+    // customise any rules here
+    'browserbug/no-outdated': 'warn',
   },
-];
+});
 ```
 
 This sets you up with the recommended set of rules. You can configure the rules
-you want to use under the rules section.
+you want to use under the rules section. You can also use the config with
+`extends`, for example to scope it to some files:
+
+```js
+export default defineConfig({
+  files: ['src/**/*.{js,ts,tsx}'],
+  extends: [browserbug.configs.recommended],
+});
+```
 
 Alternatively, you can specify only the plugin, and set each rule separately
 
 ```js
+import { defineConfig } from 'eslint/config';
 import browserbug from '@woltapp/eslint-plugin-browserbug';
 
-export default [
-  {
-    plugins: {
-      browserbug: browserbug.plugin,
-    },
-    rules: {
-      'browserbug/no-outdated': 'error',
-    },
+export default defineConfig({
+  plugins: {
+    browserbug,
   },
-];
+  rules: {
+    'browserbug/no-outdated': 'error',
+  },
+});
 ```
+
+The default export is the plugin object itself, with `meta`, `rules` and
+`configs`. `browserbug.plugin` refers to the same object, and is kept for
+existing configs.
+
+The same works in `eslint.config.js` (in an ESM package), and in
+`eslint.config.ts`, which the plugin's types support with both ESLint 9 and 10.
+Loading `eslint.config.ts` needs [`jiti`](https://github.com/unjs/jiti) or
+Node's native TypeScript support; see
+[TypeScript configuration files](https://eslint.org/docs/latest/use/configure/configuration-files#typescript-configuration-files).
+
+The plugin does not ship legacy (`.eslintrc`) configs, since ESLint 10 removed
+eslintrc support. On ESLint 9 with eslintrc, you can still load the rules with
+`"plugins": ["@woltapp/browserbug"]` and
+`"rules": { "@woltapp/browserbug/no-outdated": "error" }`.
 
 Note: for the rules to practically work, you must also specify a
 [browserslist config](https://browsersl.ist/) in you repository. Any of the
 supported browserslist methods would work, for example a `browserslist` entry in
-`package.json`.
+`package.json`. You can also set the query in ESLint's shared settings, which
+takes precedence:
+
+```js
+export default defineConfig(browserbug.configs.recommended, {
+  settings: {
+    browserslistQuery: 'defaults',
+  },
+});
+```
 
 ### Step 3: Use browserbug comments in code
 
@@ -115,12 +150,61 @@ descriptors, starting with `--`.
 // @browserbug chrome equal 117
 // @browserbug chrome between 117 120 -- Inclusive range
 //
-// These descriptors are equivalent to 'equal' and 'between' for the purposes of no-outdated.
-// Additionally, the last-checked-updated rule will report an error if there is a newer version of the specified versions available.
+// last-checked is equivalent to 'equal' for the purposes of no-outdated, but
+// documents the version the workaround was last verified against. The
+// last-checked-updated rule reports it once browserslist targets a newer version.
 //
 // @browserbug chrome last-checked 121
-// @browserbug chrome last-checked-between 117 121 -- Same as last-checked, but documents when a workaround started
 ```
+
+#### Tolerating drift in `last-checked`
+
+Some bugs take a while to be fixed upstream, so a `last-checked` version can
+fall behind your support targets without the workaround being obsolete. The
+[`versionDrift` option](docs/rules/no-outdated.md#versiondrift) sets how many
+browser releases a `last-checked` version may lag behind the lowest supported
+version; within that drift, the rule stops reporting it.
+
+#### `web-feature` descriptors
+
+Instead of writing out browser versions, a descriptor can name a feature from
+the [web-features](https://github.com/web-platform-dx/web-features) dataset,
+using its id (see the
+[web-features explorer](https://web-platform-dx.github.io/web-features-explorer/)).
+The `no-outdated` rule reports it once every browser in your browserslist
+targets supports that feature.
+
+```ts
+// @browserbug web-feature scrollend -- Settle on a debounced scroll instead
+// @browserbug web-feature scroll-driven-animations, safari last-checked 18.0
+```
+
+- web-features has support data for Chrome, Chrome Android, Edge, Firefox,
+  Firefox Android, Safari and Safari iOS (`chrome`, `and_chr`, `edge`,
+  `firefox`, `and_ff`, `safari`, `ios_saf` in browserslist). Other browserslist
+  targets, such as `samsung` or `op_mini`, are not considered.
+- Versions given as "≤N" in the dataset are treated as N.
+- Unknown ids are a parse error. Ids that web-features has moved or split are
+  also a parse error, which names the replacement id(s).
+- `web-features` is a peer dependency, like `browserslist`: install it yourself
+  (`npm i -D web-features`, version 3 or later). Its data is only as current as
+  the version you have installed, so keep it updated (it is released roughly
+  weekly), for example with Renovate or Dependabot.
+
+## Agent skill
+
+This package ships a `browserbug` agent skill, which teaches coding agents to
+add and resolve `@browserbug` annotations. See
+[Agent skill](https://github.com/woltapp/browserbug#agent-skill) for how to
+install it.
+
+## Keeping browser data stable
+
+Lint results depend on the installed versions of `browserslist`, `caniuse-lite`
+and `web-features`, so a lockfile bump can introduce errors in unrelated PRs.
+See
+[Keeping browser data stable](https://github.com/woltapp/browserbug#keeping-browser-data-stable)
+for how to pin and deliberately update them.
 
 ## Configurations
 
@@ -139,8 +223,9 @@ descriptors, starting with `--`.
 💼 Configurations enabled in.\
 ✅ Set in the `recommended` configuration.
 
-| Name                                     | Description                                                                                                         | 💼  |
-| :--------------------------------------- | :------------------------------------------------------------------------------------------------------------------ | :-- |
-| [no-outdated](docs/rules/no-outdated.md) | Ensures that no browser workarounds exist, if browserslist support for that browser is outside the specified range. | ✅  |
+| Name                                                       | Description                                                                                                               | 💼  |
+| :--------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ | :-- |
+| [last-checked-updated](docs/rules/last-checked-updated.md) | Reports `last-checked` browser workarounds, if browserslist targets a newer version of that browser than the one checked. |     |
+| [no-outdated](docs/rules/no-outdated.md)                   | Ensures that no browser workarounds exist, if browserslist support for that browser is outside the specified range.       | ✅  |
 
 <!-- end auto-generated rules list -->

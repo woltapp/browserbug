@@ -40,15 +40,9 @@ the repository's `.nvmrc` file.
 
 We use [`pnpm`](https://pnpm.io/) for package management.
 
-We recommend that you
-[install `pnpm` via `corepack`, which is node's built-in way of managing package managers](https://pnpm.io/installation#using-corepack):
-
-```shell
-corepack enable
-```
-
-This ensures that your `pnpm` version will be in sync with the one specified in
-the repository's `package.json` `packageManager` field.
+[Install any recent `pnpm`](https://pnpm.io/installation). It downloads and runs
+the version pinned in the `devEngines.packageManager` field of the repository's
+`package.json`, so your `pnpm` version stays in sync with CI.
 
 ### Step 3: Install and Run Tests
 
@@ -63,6 +57,36 @@ pnpm test
 You are set up! Follow
 ["Linking local packages to your application"](#linking-local-packages-to-an-application),
 for how to develop against an existing application.
+
+## Running benchmarks
+
+The lint rules parse every `@browserbug` comment in every linted file, so the
+parser and the support-status helpers in `browserbug-core` have benchmarks. They
+use [Vitest's benchmarking](https://vitest.dev/guide/benchmarking), and live
+next to the code as `*.bench.ts` files:
+
+- `src/parser/parser.bench.ts`: `parseBrowserbug` with representative inputs,
+  including the error paths, and split into grammar matching and the rest
+- `src/supportStatus.bench.ts`: the per-comment helpers
+  (`getBrowserSupportStatus`, `getLastCheckedStatus`,
+  `getWebFeatureSupportStatus`) against real browserslist targets, and the
+  per-file `browserslist(query)` call
+
+```shell
+# all benchmarks
+pnpm bench
+
+# only browserbug-core
+pnpm --filter @woltapp/browserbug-core bench
+
+# only some benchmark files, by path
+pnpm --filter @woltapp/browserbug-core bench src/parser
+```
+
+A full run takes about half a minute. The numbers depend on your machine and
+what else it is doing, so compare runs on the same machine, before and after a
+change. Benchmarks are not part of `pnpm test` or CI, because timings on shared
+CI runners are too noisy to be useful.
 
 ## Linking local packages to an application
 

@@ -1,5 +1,5 @@
 import { getLowestSupportedBrowsersFromTargets } from './browserslistUtils.js';
-import { BrowserbugDescriptor } from './parser/parser.js';
+import type { BrowserDescriptor } from './parser/parser.js';
 
 type SupportStatus =
   | {
@@ -12,7 +12,7 @@ type SupportStatus =
     };
 
 export function getBrowserSupportStatus(
-  descriptor: BrowserbugDescriptor,
+  descriptor: BrowserDescriptor,
   supportTargets: string[],
 ): SupportStatus {
   const browsers = getLowestSupportedBrowsersFromTargets(supportTargets);

@@ -1,0 +1,13 @@
+{
+  "$schema": "../../../node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "off"
+  },
+  "jsPlugins": ["../../../dist/index.js"],
+  "settings": {
+    "browserslistQuery": "chrome 120, firefox 130"
+  },
+  "rules": {
+    "browserbug/no-outdated": "error"
+  }
+}

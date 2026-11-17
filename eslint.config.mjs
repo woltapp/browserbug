@@ -1,13 +1,18 @@
 // @ts-check
 
+import { defineConfig, globalIgnores } from 'eslint/config';
 import eslintJs from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintPlugin from 'eslint-plugin-eslint-plugin';
 
-export default tseslint.config(
-  { ignores: ['**/*.ohm-bundle.d.ts', '**/dist/*'] },
+export default defineConfig(
+  globalIgnores([
+    '**/*.ohm-bundle.d.ts',
+    '**/dist/*',
+    // Inputs for oxlint, which use oxlint-only rules
+    'packages/oxlint-plugin-browserbug/tests/fixtures/',
+  ]),
   eslintJs.configs.recommended,
-  ...tseslint.configs.recommended,
-  // @ts-expect-error -- the types do not line up
-  eslintPlugin.configs['flat/recommended'],
+  tseslint.configs.recommended,
+  eslintPlugin.configs.recommended,
 );

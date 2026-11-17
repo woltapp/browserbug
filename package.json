@@ -1,8 +1,13 @@
 {
-  "private": true,
   "name": "@woltapp/browserbug-root",
   "version": "0.0.0",
+  "private": true,
   "description": "Document, and eventually remove, browser bug workarounds",
+  "keywords": [
+    "eslint",
+    "eslint-plugin",
+    "eslintplugin"
+  ],
   "license": "MIT",
   "author": "Wolt Enterprises Oy",
   "repository": {
@@ -10,11 +15,11 @@
     "url": "https://github.com/woltapp/browserbug.git"
   },
   "scripts": {
+    "bench": "pnpm --recursive --if-present run bench",
     "build": "pnpm --recursive run build",
-    "changeset:release": "pnpm build && changeset tag && pnpm --recursive publish --access public",
+    "changeset:release": "pnpm build && changeset git-tag && pnpm --recursive publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only",
     "check-types": "pnpm --recursive run check-types",
-    "preinstall": "npx only-allow pnpm",
     "lint": "pnpm --recursive lint",
     "prepare": "husky",
     "release": "pnpm --recursive publish",
@@ -22,37 +27,35 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@changesets/cli": "^2.27.1"
+    "@changesets/cli": "^3.0.3"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.16.4",
-    "@tsconfig/node20": "20.1.4",
-    "@vitest/coverage-v8": "2.1.4",
-    "eslint": "9.13.0",
-    "husky": "9.1.6",
-    "lint-staged": "15.2.10",
-    "npm-run-all2": "7.0.1",
-    "prettier": "3.3.3",
-    "prettier-package-json": "2.8.0",
-    "publint": "0.2.12",
-    "rimraf": "6.0.1",
-    "tsup": "8.3.5",
-    "typescript": "5.6.3",
-    "typescript-eslint": "8.12.1",
-    "vitest": "2.1.4"
-  },
-  "keywords": [
-    "eslint",
-    "eslint-plugin",
-    "eslintplugin"
-  ],
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+    "@arethetypeswrong/cli": "0.18.5",
+    "@eslint/js": "10.0.1",
+    "@tsconfig/node22": "22.0.6",
+    "@typescript/native": "npm:typescript@7.0.2",
+    "@vitest/coverage-v8": "5.1.0",
+    "eslint": "10.14.0",
+    "eslint-plugin-eslint-plugin": "7.6.2",
+    "husky": "9.1.7",
+    "lint-staged": "17.6.0",
+    "npm-run-all2": "9.0.4",
+    "oxfmt": "0.78.0",
+    "publint": "0.3.25",
+    "rimraf": "6.1.4",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
+    "typescript-eslint": "8.72.1",
+    "vitest": "5.1.0"
   },
   "lint-staged": {
     "*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}": "eslint --fix",
-    "*": "prettier --write --ignore-unknown",
-    "package.json": "prettier-package-json --write"
+    "*": "oxfmt --no-error-on-unmatched-pattern"
   },
-  "packageManager": "pnpm@9.12.2"
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.18.0",
+      "onFail": "download"
+    }
+  }
 }
