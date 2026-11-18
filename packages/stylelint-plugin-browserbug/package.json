@@ -1,7 +1,11 @@
 {
   "name": "@woltapp/stylelint-plugin-browserbug",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Document, and eventually remove, browser bug workarounds",
+  "keywords": [
+    "stylelint",
+    "stylelint-plugin"
+  ],
   "license": "MIT",
   "author": "Wolt Enterprises Oy",
   "repository": {
@@ -9,50 +13,55 @@
     "url": "https://github.com/woltapp/browserbug.git",
     "directory": "packages/stylelint-plugin-browserbug"
   },
+  "files": [
+    "dist",
+    "docs",
+    "skills"
+  ],
   "type": "module",
+  "main": "./dist/index.js",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "files": [
-    "dist",
-    "docs"
-  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "npm-run-all build:lib",
-    "build:lib": "tsup lib/index.ts --clean --format esm,cjs --sourcemap",
+    "build": "npm-run-all build:clean build:lib",
+    "build:clean": "rimraf dist/",
+    "build:lib": "tsc --project tsconfig.build.json",
     "check-types": "tsc --noEmit",
     "check-types:watch": "tsc --noEmit --watch",
+    "copy-skills": "node -e \"const fs = require('node:fs'); fs.rmSync('skills', { recursive: true, force: true }); fs.cpSync('../../skills', 'skills', { recursive: true })\"",
     "lint": "npm-run-all \"lint:*\"",
-    "lint:prettier": "pnpm prettier --check .",
+    "lint:format": "oxfmt --check .",
     "lint:scripts": "eslint lib",
+    "prepack": "pnpm copy-skills",
     "publint": "publint",
-    "prepublishOnly": "pnpm build && publint && attw --pack",
+    "prepublishOnly": "pnpm build && publint && attw --pack --profile esm-only --no-summary",
     "test": "vitest"
   },
   "dependencies": {
     "@woltapp/browserbug-core": "workspace:^"
   },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "dedent": "1.7.2",
+    "jest-preset-stylelint": "10.0.0",
+    "stylelint": "18.0.0",
+    "stylelint-16": "npm:stylelint@16.26.1",
+    "web-features": "3.45.0"
+  },
   "peerDependencies": {
     "browserslist": "^4.22.2",
-    "stylelint": "^15.0.0 || ^16.0.0"
+    "stylelint": "^16.0.0 || ^17.0.0 || ^18.0.0",
+    "web-features": "^3.0.0"
   },
-  "devDependencies": {
-    "@types/node": "20.17.1",
-    "dedent": "1.5.3",
-    "jest-preset-stylelint": "7.1.0"
-  },
-  "keywords": [
-    "stylelint",
-    "stylelint-plugin"
-  ],
   "engines": {
-    "node": "^20 || ^22"
-  },
-  "publishConfig": {}
+    "node": ">=22.12"
+  }
 }

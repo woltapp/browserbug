@@ -18,37 +18,45 @@ jobs:
       pull-requests: write # to create a release pull request (changesets/action)
       contents: write # to create the release itself (changesets/action)
       id-token: write # OpenID Connect token needed for npm publish provenance
-      packages: write # to publish to GitHub packages
     name: Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # This makes Actions fetch all Git history so that Changesets can
           # generate changelogs with the correct commits
           fetch-depth: 0
+          # changesets/action pushes through the GitHub API with github-token
+          persist-credentials: false
+      - name: Setup pnpm
+        # Installs the pnpm version from devEngines in package.json. Unlike
+        # corepack, this does not depend on corepack's bundled npm signing keys.
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
+        with:
+          install: false
+          node-version-file: false
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: ".nvmrc"
-      - run: corepack enable
-      - run: pnpm install
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
           # Calls out to `changeset version` and also updates the lockfile,
           # which Changesets does not do out of the box.
-          version: pnpm changeset:version
+          version-script: pnpm changeset:version
           # We use a recursive pnpm script under the hood, to ensure that
           # publishing runs topologically. Changesets does not do this out of
           # the box. @see: https://github.com/changesets/changesets/issues/238
-          publish: pnpm changeset:release
+          publish-script: pnpm changeset:release
+          github-token: ${{ secrets.GITHUB_TOKEN }}
         env:
-          # Used to write releases and create the PR
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Used to actually publish to the NPM registry; this is set as a
-          # repository secret
-          NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+          # Authenticates publishing to npm, through the .npmrc that setup-node
+          # writes for registry-url. This is set as a repository secret.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+          # Publish with provenance, using the OpenID Connect token above
           NPM_CONFIG_PROVENANCE: true

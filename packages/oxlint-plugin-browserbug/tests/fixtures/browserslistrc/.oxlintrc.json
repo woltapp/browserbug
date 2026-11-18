@@ -1,0 +1,10 @@
+{
+  "$schema": "../../../node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "off"
+  },
+  "jsPlugins": ["../../../dist/index.js"],
+  "rules": {
+    "browserbug/no-outdated": "error"
+  }
+}

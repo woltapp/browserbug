@@ -1,7 +1,10 @@
 {
   "name": "@woltapp/browserbug-core",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "",
+  "keywords": [
+    "browserbug"
+  ],
   "license": "MIT",
   "author": "Wolt Enterprises Oy",
   "repository": {
@@ -9,44 +12,49 @@
     "url": "https://github.com/woltapp/browserbug.git",
     "directory": "packages/browserbug-core"
   },
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
-    }
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "npm-run-all build:grammar build:lib",
+    "bench": "vitest bench --run --reporter=verbose",
+    "build": "npm-run-all build:clean build:grammar build:lib build:copy-grammar",
+    "build:clean": "rimraf dist/",
+    "build:copy-grammar": "node scripts/copy-grammar.mjs",
     "build:grammar": "pnpm ohm generateBundles --withTypes --esm src/parser/grammar/browserbug.ohm",
-    "build:lib": "tsup src/index.ts --clean --format esm,cjs --dts",
+    "build:lib": "tsc --project tsconfig.build.json",
     "check-types": "tsc --noEmit",
     "check-types:watch": "tsc --noEmit --watch",
     "lint": "npm-run-all \"lint:*\"",
-    "lint:prettier": "pnpm prettier --check .",
+    "lint:format": "oxfmt --check .",
     "lint:scripts": "eslint src",
-    "prepublishOnly": "pnpm build && publint && attw --pack",
+    "prepublishOnly": "pnpm build && publint && attw --pack --profile esm-only --no-summary",
     "test": "vitest"
   },
   "dependencies": {
     "ohm-js": "^17.1.0"
   },
-  "peerDependencies": {
-    "browserslist": "^4.23.0"
-  },
   "devDependencies": {
-    "@ohm-js/cli": "2.0.0",
-    "fast-check": "3.22.0"
+    "@ohm-js/cli": "2.0.1",
+    "@types/node": "22.20.5",
+    "fast-check": "4.10.2",
+    "web-features": "3.45.0"
   },
-  "keywords": [
-    "browserbug"
-  ],
-  "publishConfig": {}
+  "peerDependencies": {
+    "browserslist": "^4.23.0",
+    "web-features": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
 }

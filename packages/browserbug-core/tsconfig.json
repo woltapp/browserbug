@@ -1,17 +1,16 @@
 {
-  "extends": "@tsconfig/node20/tsconfig.json",
+  "extends": "@tsconfig/node22/tsconfig.json",
   "compilerOptions": {
-    // We only use this file for type-checking, but note that tsup will use the
-    // target to inform esbuild's emit
-    "module": "Preserve",
-    "moduleResolution": "Bundler",
+    // ESM-only, emitted for the Node versions in `engines` (22.12+). Unlike
+    // `nodenext`, `node20` does not change meaning with TypeScript upgrades.
+    "module": "node20",
+    // What `node20` implies; set explicitly because @tsconfig/node22 sets
+    // `node16`. (There is no `node20` resolution mode, and no `node22` module
+    // mode: `node20` covers Node 20 and later.)
+    "moduleResolution": "nodenext",
     "noEmit": true,
     "isolatedModules": true,
-    "declaration": true,
-    "declarationMap": true,
-    "outDir": "dist",
-    "allowJs": true,
-    "checkJs": false
+    "verbatimModuleSyntax": true
   },
   "include": ["src"]
 }

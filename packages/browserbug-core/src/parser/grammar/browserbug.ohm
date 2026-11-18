@@ -1,17 +1,27 @@
 Browserbug {
   Exp
-    = opener ListOf<BrowserAndVersionExp, ","> CommentExp?
-    
-  BrowserAndVersionExp 
+    = opener ListOf<DescriptorExp, ","> CommentExp?
+
+  DescriptorExp
+    = WebFeatureExp
+    | BrowserAndVersionExp
+
+  // A feature from the web-features dataset (https://github.com/web-platform-dx/web-features),
+  // e.g. `web-feature scroll-driven-animations`. Its support versions come
+  // from the dataset, instead of being written out per browser.
+  WebFeatureExp
+    = webfeature featureId
+
+  BrowserAndVersionExp
     = ident CompExp
-    
+
   CompExp
     = SingleComparatorExp
     | MultiComparatorExp
-    
+
   SingleComparatorExp
     = singlecomparator Version
-    
+
   MultiComparatorExp
     = multicomparator Version Version
 
@@ -19,19 +29,23 @@ Browserbug {
     = number "." number  -- majorminor
     | number            -- major
 
-  CommentExp 
+  CommentExp
     = commentstart commentChars?
 
   commentChars
     = ~end any+
 
   ident (an identifier)
-    = ~reserved identifierPart+  
+    = ~reserved identifierPart+
 
   identifierPart
-    = alnum 
+    = alnum
     | "_"
     | "-"
+
+  // web-features ids are lowercase kebab-case
+  featureId (a web-features feature id)
+    = (lower | digit | "-")+
 
   number (a number)
     = digit+
@@ -39,6 +53,7 @@ Browserbug {
   opener = "@browserbug"
   singlecomparator = "lte" | "lt" | "lower-than-or-equal" | "lower-than" | "equal" | "last-checked"
   multicomparator = "between"
+  webfeature = "web-feature"
   commentstart = "--"
-  reserved = opener | singlecomparator | multicomparator | commentstart 
+  reserved = opener | singlecomparator | multicomparator | webfeature | commentstart
 }

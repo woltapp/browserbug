@@ -1,5 +1,13 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
-import rule from '../../../lib/rules/no-outdated';
+import type { RuleModule } from '@typescript-eslint/utils/ts-eslint';
+import plugin from '../../../lib/index.js';
+
+// Tested through the ESLint plugin, so these cover the `create` that
+// `eslintCompatPlugin` derives from the rule's `createOnce`.
+const rule = plugin.rules['no-outdated'] as unknown as RuleModule<
+  string,
+  unknown[]
+>;
 
 const ruleTester = new RuleTester();
 
@@ -140,9 +148,57 @@ ruleTester.run('no-outdated', rule, {
         browserslistQuery: 'chrome 109, firefox 106',
       },
     },
+    // web-feature descriptors
+    {
+      name: 'web-feature still lacking in a target',
+      code: '// @browserbug web-feature scrollend -- Debounced scroll fallback',
+      settings: {
+        browserslistQuery: 'chrome 109, firefox 130',
+      },
+    },
+    {
+      name: 'web-feature mixed with a browser descriptor',
+      code: '// @browserbug web-feature scrollend, chrome lower-than 114',
+      settings: {
+        browserslistQuery: 'chrome 109',
+      },
+    },
+    {
+      name: 'versionDrift: last-checked within the allowed drift',
+      // 109 and 110 are newer than 108, so the drift is 2
+      code: '// @browserbug chrome last-checked 108',
+      options: [{ versionDrift: 2 }],
+      settings: {
+        browserslistQuery: 'chrome 110',
+      },
+    },
+    {
+      name: 'versionDrift: counts point releases',
+      // 15.5 and 15.6 are newer than 15.4
+      code: '// @browserbug safari last-checked 15.4',
+      options: [{ versionDrift: 2 }],
+      settings: {
+        browserslistQuery: 'safari 15.6',
+      },
+    },
   ],
 
   invalid: [
+    // web-feature descriptors
+    {
+      code: '// @browserbug web-feature scrollend -- Debounced scroll fallback',
+      errors: [{ messageId: 'webFeatureOutdated' }],
+      settings: {
+        browserslistQuery: 'chrome 120, firefox 130',
+      },
+    },
+    {
+      code: '// @browserbug web-feature not-a-real-feature',
+      errors: [{ messageId: 'parseError' }],
+      settings: {
+        browserslistQuery: 'chrome 120',
+      },
+    },
     // Errors about outdated declaration
     {
       code: '// @browserbug chrome lower-than 109 -- This API is not available',
@@ -184,6 +240,44 @@ ruleTester.run('no-outdated', rule, {
       errors: [{ messageId: 'outdated' }],
       settings: {
         browserslistQuery: 'chrome 110',
+      },
+    },
+    {
+      name: 'versionDrift: last-checked beyond the allowed drift',
+      // 109 and 110 are newer than 108, so the drift is 2
+      code: '// @browserbug chrome last-checked 108',
+      options: [{ versionDrift: 1 }],
+      errors: [{ messageId: 'outdated' }],
+      settings: {
+        browserslistQuery: 'chrome 110',
+      },
+    },
+    {
+      name: 'versionDrift: does not apply to explicit upper bounds',
+      code: '// @browserbug chrome lower-than 109',
+      options: [{ versionDrift: 5 }],
+      errors: [{ messageId: 'outdated' }],
+      settings: {
+        browserslistQuery: 'chrome 110',
+      },
+    },
+    {
+      name: 'versionDrift: does not apply to unsupported browsers',
+      code: '// @browserbug opera last-checked 100',
+      options: [{ versionDrift: 5 }],
+      errors: [{ messageId: 'unsupported' }],
+      settings: {
+        browserslistQuery: 'chrome 110',
+      },
+    },
+    {
+      name: 'versionDrift: only the descriptor beyond the drift is reported',
+      code: '// @browserbug chrome last-checked 109, safari last-checked 15.2',
+      options: [{ versionDrift: 1 }],
+      // safari: 15.4 and 15.5 are newer than "15.2-15.3", so the drift is 2
+      errors: [{ messageId: 'outdated' }],
+      settings: {
+        browserslistQuery: 'chrome 110, safari 15.5',
       },
     },
     {
@@ -235,7 +329,95 @@ ruleTester.run('no-outdated', rule, {
     // TODO: rename these to validationErrors, to allow switching some off in the future
     {
       code: '// @browserbug unknownBrowser lower-than 80 -- This API is not available',
-      errors: [{ messageId: 'parseError' }],
+      errors: [
+        {
+          messageId: 'parseError',
+          line: 1,
+          column: 16,
+          endLine: 1,
+          endColumn: 30,
+        },
+      ],
+    },
+    // Parsing errors point at the offending part of the declaration
+    {
+      name: 'Syntax error (line comment)',
+      code: '// @browserbug chrome 120 -- reason',
+      errors: [
+        {
+          messageId: 'parseError',
+          data: {
+            errorMessage:
+              'expected "between", "last-checked", "equal", "lower-than", "lower-than-or-equal", "lt", or "lte", but found "120".',
+          },
+          line: 1,
+          column: 23,
+          endLine: 1,
+          endColumn: 26,
+        },
+      ],
+    },
+    {
+      name: 'Syntax error at the end of the declaration (block comment)',
+      code: 'const a = 1; /* @browserbug chrome lower-than */',
+      errors: [
+        {
+          messageId: 'parseError',
+          data: {
+            errorMessage: 'expected a number, but the declaration ended.',
+          },
+          line: 1,
+          column: 46,
+          endLine: 1,
+          endColumn: 46,
+        },
+      ],
+    },
+    {
+      name: 'Syntax error (multi-line JSDoc comment)',
+      code: `
+function f() {
+  /**
+   * Some context first
+   * @browserbug chrome lower-than 110, firefox between 107
+   */
+}`,
+      errors: [
+        {
+          messageId: 'parseError',
+          line: 5,
+          column: 60,
+          endLine: 5,
+          endColumn: 60,
+        },
+      ],
+    },
+    {
+      name: 'Several validation errors (multi-line block comment)',
+      code: `
+/*
+ * @browserbug chrome lower-than 110
+ * @browserbug notabrowser lt 3, chrome lt 20000
+ */`,
+      errors: [
+        {
+          messageId: 'parseError',
+          line: 4,
+          column: 16,
+          endLine: 4,
+          endColumn: 27,
+        },
+        {
+          messageId: 'parseError',
+          line: 4,
+          column: 44,
+          endLine: 4,
+          endColumn: 49,
+        },
+      ],
+      settings: {
+        browserslistQuery: 'chrome 109',
+      },
     },
     {
       // Not yet released

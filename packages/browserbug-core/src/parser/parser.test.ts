@@ -61,7 +61,7 @@ describe('parser', () => {
           fc.option(
             fc.oneof(
               fc.string({ minLength: 1 }),
-              fc.unicodeString({ minLength: 1 }),
+              fc.string({ unit: 'grapheme', minLength: 1 }),
             ),
           ),
         ),
@@ -130,5 +130,91 @@ describe('parser', () => {
         browserslist.data,
       ),
     ).toHaveProperty('error');
+  });
+
+  describe('error locations', () => {
+    const slice = (input: string, range: { start: number; end: number }) =>
+      input.slice(range.start, range.end);
+
+    test('syntax errors point at the offending token', () => {
+      const input = '@browserbug chrome 120 -- Some bug here';
+      const result = parseBrowserbug(input, browserslist.data);
+
+      expect(result).toMatchObject({
+        success: false,
+        error: {
+          kind: 'syntax',
+          rightmostFailurePosition: 19,
+          range: { start: 19, end: 22 },
+          expected:
+            'expected "between", "last-checked", "equal", "lower-than", "lower-than-or-equal", "lt", or "lte"',
+        },
+      });
+      if (result.success || Array.isArray(result.error)) {
+        throw new Error('expected a syntax error');
+      }
+      expect(slice(input, result.error.range)).toBe('120');
+    });
+
+    test('syntax errors at the end of the input have an empty range', () => {
+      const input = '@browserbug chrome lower-than';
+      const result = parseBrowserbug(input, browserslist.data);
+
+      expect(result).toMatchObject({
+        success: false,
+        error: {
+          kind: 'syntax',
+          range: { start: input.length, end: input.length },
+          expected: 'expected a number',
+        },
+      });
+    });
+
+    test('syntax errors in a later descriptor point past the earlier ones', () => {
+      const input = '@browserbug chrome lt 120, firefox 130';
+      const result = parseBrowserbug(input, browserslist.data);
+
+      if (result.success || Array.isArray(result.error)) {
+        throw new Error('expected a syntax error');
+      }
+      expect(slice(input, result.error.range)).toBe('130');
+    });
+
+    test('syntax error offsets span lines in a multi-line input', () => {
+      const input = '@browserbug chrome lt 120,\n  firefox 130\n';
+      const result = parseBrowserbug(input, browserslist.data);
+
+      if (result.success || Array.isArray(result.error)) {
+        throw new Error('expected a syntax error');
+      }
+      expect(result.error.range).toEqual({ start: 37, end: 40 });
+      expect(slice(input, result.error.range)).toBe('130');
+    });
+
+    test('validation errors point at the unknown browser', () => {
+      const input = '@browserbug chrome lt 120, notabrowser lt 3';
+      const result = parseBrowserbug(input, browserslist.data);
+
+      if (result.success || !Array.isArray(result.error)) {
+        throw new Error('expected validation errors');
+      }
+      expect(result.error).toHaveLength(1);
+      expect(result.error[0]).toMatchObject({ kind: 'validation' });
+      expect(slice(input, result.error[0]!.range)).toBe('notabrowser');
+    });
+
+    test('validation errors point at the unknown version(s)', () => {
+      const input =
+        '@browserbug chrome lt 20000, safari between 14.9 15.4 -- reason';
+      const result = parseBrowserbug(input, browserslist.data);
+
+      if (result.success || !Array.isArray(result.error)) {
+        throw new Error('expected validation errors');
+      }
+      expect(result.error.map((e) => slice(input, e.range))).toEqual([
+        '20000',
+        '14.9 15.4',
+      ]);
+    });
   });
 });

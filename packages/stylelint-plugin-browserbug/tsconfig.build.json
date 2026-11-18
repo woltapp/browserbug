@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "rootDir": "./lib",
+    "outDir": "./dist",
+    "types": ["node"]
+  },
+  "include": ["lib"],
+  "exclude": ["tests", "vitest.setup.ts"]
+}

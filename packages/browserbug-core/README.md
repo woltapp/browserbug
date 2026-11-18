@@ -30,8 +30,15 @@ const parseResult = parseBrowserbug(
 );
 
 if (!parseResult.success) {
-  // Do something with the error here :)
-  console.error(parseResult.error.message);
+  // A syntax error is a single object; validation errors (unknown browser,
+  // version or web-feature) are an array. Both carry a `range`: the
+  // `[start, end)` character offsets of the problem within the input string.
+  const errors = Array.isArray(parseResult.error)
+    ? parseResult.error
+    : [parseResult.error];
+  for (const { range, shortMessage } of errors) {
+    console.error(`${range.start}-${range.end}: ${shortMessage}`);
+  }
 }
 
 // Do something with data here
@@ -48,3 +55,8 @@ sticky RegExp and a stack, but that seemed a bit ad-hoc.
 
 If you have a compelling case for alternatives, including speed and quality of
 error messages, we would love to hear them!
+
+Syntax errors also carry `expected`, ohm's description of what the grammar
+expected at the failure position (e.g. `expected a number`), without any
+location. Linters combine it with their own source location, as the input is
+usually a slice of a larger comment.

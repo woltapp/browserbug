@@ -14,7 +14,7 @@ safari 16.4
 ```
 
 ```css
-/*  @browserbug chrome under 117 -- Work around bug */
+/*  @browserbug chrome lower-than 117 -- Work around bug */
 /** ↑
  * Comments for unsupported browsers, like this */
 ```
@@ -42,9 +42,9 @@ safari 16.4
 The following patterns are considered problems:
 
 ```css
-/* @browserbug chrome under 117 -- Work around bug */
+/* @browserbug chrome lower-than 117 -- Work around bug */
 /* @browserbug chrome between 117 120 -- Work around bug */
-/* @browserbug firefox under 80 -- Work around bug */
+/* @browserbug firefox lower-than 80 -- Work around bug */
 /* @browserbug unknown 123 -- Work around bug */
 ```
 
@@ -72,6 +72,50 @@ This section is a work in progress.
 
 Allows specifying an inline browserslist query, that will take precedence over
 the global one (if any).
+
+### `versionDrift`
+
+Type: non-negative integer. Default: `0`.
+
+How many browser releases a `last-checked` version may fall behind the lowest
+supported version before it is reported at the rule's severity. Within that
+drift, it is reported as a **warning** instead. Use it for workarounds you know
+will take a while to fix upstream: they stay visible, without failing the lint
+run on every support-target bump.
+
+```json
+{
+  "rules": {
+    "@woltapp/browserbug-comment-no-outdated": [true, { "versionDrift": 2 }]
+  }
+}
+```
+
+With the browserslist config above (`chrome 120`), `versionDrift: 2` reports
+this as a warning:
+
+```css
+/* 119 and 120 are newer than 118: a drift of 2 */
+/* @browserbug chrome last-checked 118 */
+```
+
+and this at the rule's severity (an error by default):
+
+```css
+/* 118, 119 and 120 are newer than 117: a drift of 3 */
+/* @browserbug chrome last-checked 117 */
+```
+
+Drift counts the browser's releases in browserslist data, not the difference
+between version numbers. For Safari, `last-checked 17.2` with a lowest supported
+version of `18.0` is a drift of 5 (17.3, 17.4, 17.5, 17.6, 18.0).
+
+`versionDrift` only applies to `last-checked`. The other comparators
+(`lower-than`, `equal`, `between`, ...) state a known version range, so they are
+reported at the rule's severity as soon as that range is unsupported.
+Unsupported browsers and `web-feature` descriptors are not affected either.
+
+To fail CI on warnings too, run Stylelint with `--max-warnings 0`.
 
 ## When Not To Use It
 

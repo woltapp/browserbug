@@ -3,11 +3,11 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
-    "sourceMap": true,
     "declaration": true,
-    "rootDir": "./lib",
+    "declarationMap": true,
+    "sourceMap": true,
+    "rootDir": "./src",
     "outDir": "./dist"
   },
-  "include": ["lib"],
-  "exclude": ["tests", "vitest-setup.ts"]
+  "exclude": ["src/**/*.test.ts", "src/**/*.bench.ts"]
 }
